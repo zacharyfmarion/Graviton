@@ -24,6 +24,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding-bottom: 35px;
       padding-left: 5px;
       padding-right: 5px;
+      min-width: 200px;
     }
     .small-icon {
       --iron-icon-height: 18px;
@@ -118,6 +119,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Address bar -->
         <paper-input class="flex" value = "{{url::input}}"></paper-input>
         <!-- Tabs -->
+        <!-- <paper-tabs selected="{{selected}}" id = "tabsBar" noink> -->
         <paper-tabs selected="0" id = "tabsBar" noink>
           <template is = "dom-repeat" items = "{{tabs}}" as = "tab">
               <paper-tab>
@@ -142,7 +144,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-toolbar>
 
       <!-- Main Content -->
+
       <webview id="webview" src="[[url]]" allowtransparency = "on"></webview>
+
+      <!-- <iron-pages selected = "{{selected}}">
+        <template is = "dom-repeat" items = "tabs" as = "tab">
+          <iron-page>
+            <webview id="webview" src="[[tab.url]]" allowtransparency = "on"></webview>
+          </iron-page>
+        </template>
+      </iron-pages> -->
     </paper-header-panel>
 
   </template>
@@ -202,7 +213,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _addTab: function(){
         this.push('tabs', {
           title: 'Google',
-          url: 'http://www.google.com'
+          url: 'http://www.github.com'
         })
         // Add webview element
       },
@@ -210,6 +221,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var model = e.model;
         // remove this tab from the array
         this.splice('tabs', model.index, 1);
+        // if last tab is closed, close the application
+        if (this.tabs.length <= 0){
+          this.close();
+        }
         if (model.index-1 >= 0){
           this.$.tabsBar.selected = model.index-1;
         }

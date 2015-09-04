@@ -33,7 +33,7 @@
   },
   "scripts": {
     "test": "gulp test:local",
-    "start": "gulp serve"
+    "start": "node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron ."
   },
   "engines": {
     "node": ">=0.10.0"
