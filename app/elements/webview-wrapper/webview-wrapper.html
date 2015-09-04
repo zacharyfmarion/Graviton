@@ -1,0 +1,221 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../www/lib/polymer/polymer.html">
+<link rel="import" href="../window-frame-behavior/window-frame-behavior.html">
+
+<dom-module id="webview-wrapper">
+  <style>
+    :host {
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+    paper-input{
+      --paper-input-container-input-color: #fff;
+      /*--paper-input-container-color: var(--accent-color);*/
+      padding-bottom: 35px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    .small-icon {
+      --iron-icon-height: 18px;
+      --iron-icon-width: 18px;
+      padding: 0;
+      margin: 0;
+      -webkit-app-region: no-drag;
+    }
+
+    #mainToolbar{
+      --paper-toolbar: {
+        height: 45px;
+      }
+    }
+
+    .menubar{
+      -webkit-app-region: drag;
+      -webkit-user-select: none;
+      border-radius: 0;
+      background: var(--light-primary-color);
+    }
+    webview{
+      display:block;
+      height: calc(100% - 65px);
+      width: 100%;
+    }
+    .content{
+      height: 100%;
+      width: 100%;
+    }
+
+    .toolbar-icon{
+      --iron-icon-height: 24px;
+      --iron-icon-width: 24px;
+      padding: 5px;
+      margin: 0;
+      margin-bottom: 18px;
+      /*--paper-icon-button-ink-color: transparent;*/
+    }
+
+    paper-tab{
+      min-width: 40px;
+      max-width: 60px;
+      --paper-tab-ink: var(--accent-color);
+    }
+
+    paper-tabs{
+      height: 45px;
+      margin-top: 0;
+      padding-bottom: 20px;
+      --paper-tabs-selection-bar-color: var(--accent-color);
+    }
+
+    #menuBtn{
+      margin-right: 0;
+    }
+
+    .closeTab{
+      --iron-icon-height: 15px;
+      --iron-icon-width: 15px;
+      padding: 3px;
+      z-index: 10000;
+    }
+
+    paper-item{
+      cursor: pointer;
+    }
+
+    tab-title{
+      overflow: ellipsis;
+    }
+
+  </style>
+  <template class = "flex">
+
+    <paper-header-panel main class = "flex">
+      <div class = "layout horizontal menubar" style = "height: 20px; width = 100%;">
+        <paper-icon-button class="small-icon" icon="close" id = "close" on-click = "close"></paper-icon-button>
+        <paper-icon-button class="small-icon" icon="remove" id = "minimize" on-click = "minimize"></paper-icon-button>
+        <paper-icon-button class="small-icon" icon="fullscreen" id = "fullscreen" on-click = "fullscreen"></paper-icon-button>
+        <span class="flex"></span>
+        <span id = 'title'></span>
+      </div>
+
+      <!-- Main Toolbar -->
+      <paper-toolbar id="mainToolbar">
+        <!-- Toolbar icons -->
+        <paper-icon-button class = "toolbar-icon" icon="home" on-click = "home"></paper-icon-button>
+        <paper-icon-button class = "toolbar-icon" icon="arrow-back" on-click = "back"></paper-icon-button>
+        <paper-icon-button class = "toolbar-icon" icon="arrow-forward" on-click = "forward"></paper-icon-button>
+        <paper-icon-button class = "toolbar-icon" icon="refresh" on-click = "reload"></paper-icon-button>
+        <!-- Address bar -->
+        <paper-input class="flex" value = "{{url::input}}"></paper-input>
+        <!-- Tabs -->
+        <paper-tabs selected="0" id = "tabsBar" noink>
+          <template is = "dom-repeat" items = "{{tabs}}" as = "tab">
+              <paper-tab>
+                <div class="layout horizontal">
+                  <span class = "flex tab-title">{{tab.title}}</span>
+                </div>
+                <paper-icon-button icon = "close" class = "closeTab" on-click = "_removeTab"></paper-icon-button>
+              </paper-tab>
+          </template>
+        </paper-tabs>
+        <paper-icon-button class = "toolbar-icon" icon = "add" id = "addTab" on-click = "_addTab"></paper-icon-button>
+
+        <paper-menu-button class = "toolbar-icon" id = "menuBtn" horizontal-align="right">
+          <paper-icon-button icon="menu" class="dropdown-trigger" id = "menuBtn"></paper-icon-button>
+          <paper-menu class="dropdown-content">
+            <template is="dom-repeat" items="[[test]]" as="test">
+              <paper-item>[[test]]</paper-item>
+            </template>
+          </paper-menu>
+        </paper-menu-button>
+
+      </paper-toolbar>
+
+      <!-- Main Content -->
+      <webview id="webview" src="[[url]]" allowtransparency = "on"></webview>
+    </paper-header-panel>
+
+  </template>
+  <script>
+  (function() {
+    Polymer({
+      is: 'webview-wrapper',
+
+      behaviors: [BrowserBehaviors.WindowFrameBehvior],
+
+      properties: {
+        url: {
+          type: String,
+          value: 'http://www.google.com',
+          notify: true,
+          observer: '_urlChanged'
+        },
+        tabs: {
+          type: Array,
+          value: function(){
+            return [{
+              title: "Google",
+              url: "http://www.google.com"
+            }];
+          }
+        },
+        test: {
+          type: Array,
+          value: function(){
+            return ['item 1', 'item 2', 'item 3']
+          }
+        }
+      },
+      ready: function(){
+        this.$.webview.addEventListener('did-finish-load', this._listenForLoad.bind(this), false);
+      },
+      home: function(){
+        this.url = 'http://www.google.com'
+      },
+      back: function(){
+        this.$.webview.goBack();
+      },
+      forward: function(){
+        this.$.webview.goForward();
+      },
+      reload: function(){
+        this.$.webview.reload();
+      },
+
+      _listenForLoad: function(){
+        // add check for if the input url box is not focused
+        this.url = this.$.webview.getUrl();
+      },
+      _urlChanged: function(){
+        // this.$.webview.url = this.url;
+      },
+      _addTab: function(){
+        this.push('tabs', {
+          title: 'Google',
+          url: 'http://www.google.com'
+        })
+        // Add webview element
+      },
+      _removeTab: function(e){
+        var model = e.model;
+        // remove this tab from the array
+        this.splice('tabs', model.index, 1);
+        if (model.index-1 >= 0){
+          this.$.tabsBar.selected = model.index-1;
+        }
+        //TODO: Also delete the webview instance!!!!
+      }
+    });
+  })();
+  </script>
+</dom-module>

@@ -1,0 +1,52 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<script>
+// Ensure that this is not confused with a Polymer behavior in the future
+var BrowserBehaviors = BrowserBehaviors || {};
+/**
+  * Behavior for closing/minimizing/etc an Electron app
+  * @polymerBehavior
+  */
+BrowserBehaviors.WindowFrameBehvior = {
+  properties: {
+    remote: {
+      type: Object,
+      value: function(){
+        return require('remote');
+      }
+    },
+    app: {
+      type: Object
+    },
+    browserWindow: {
+      type: Object
+    }
+  },
+  /**
+   *
+   */
+   ready: function(){
+     this.app = this.remote.require('app');
+     this.browserWindow = this.remote.require('browser-window');
+   },
+   close: function(){
+     this.app.quit();
+   },
+   minimize: function(){
+     var focusedWindow = this.browserWindow.getFocusedWindow();
+     focusedWindow.minimize();
+   },
+   fullscreen: function(){
+     var focusedWindow = this.browserWindow.getFocusedWindow();
+     focusedWindow.setFullScreen(!focusedWindow.isFullScreen());
+   }
+};
+</script>
