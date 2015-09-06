@@ -46,15 +46,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-radius: 0;
       background: var(--light-primary-color);
     }
-    webview{
-      display:block;
-      height: calc(100% - 65px);
-      width: 100%;
-    }
-    .content{
-      height: 100%;
-      width: 100%;
-    }
 
     .toolbar-icon{
       --iron-icon-height: 24px;
@@ -97,6 +88,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       overflow: ellipsis;
     }
 
+    iron-pages{
+      display:block;
+      height: calc(100% - 65px);
+      width: 100%;
+    }
+
+    .webview{
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+
   </style>
   <template class = "flex">
 
@@ -106,7 +109,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-icon-button class="small-icon" icon="remove" id = "minimize" on-click = "minimize"></paper-icon-button>
         <paper-icon-button class="small-icon" icon="fullscreen" id = "fullscreen" on-click = "fullscreen"></paper-icon-button>
         <span class="flex"></span>
-        <span id = 'title'></span>
+        <paper-icon-button class="small-icon" icon="bug-report" id = "openConsole" on-click = "openConsole"></paper-icon-button>
       </div>
 
       <!-- Main Toolbar -->
@@ -119,22 +122,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Address bar -->
         <paper-input class="flex" value = "{{url::input}}"></paper-input>
         <!-- Tabs -->
-        <!-- <paper-tabs selected="{{selected}}" id = "tabsBar" noink> -->
-        <paper-tabs selected="0" id = "tabsBar" noink>
-          <template is = "dom-repeat" items = "{{tabs}}" as = "tab">
-              <paper-tab>
-                <div class="layout horizontal">
-                  <span class = "flex tab-title">{{tab.title}}</span>
-                </div>
-                <paper-icon-button icon = "close" class = "closeTab" on-click = "_removeTab"></paper-icon-button>
-              </paper-tab>
+        <paper-tabs selected="{{selected}}" id = "tabsBar" noink>
+        <!-- <paper-tabs selected="0" id = "tabsBar" noink> -->
+          <template is = "dom-repeat" items = "{{tabs}}" as = "tab" id = "tabsRepeat">
+            <paper-tab id = "tab.tabId">
+              <div class="layout horizontal">
+                <span class = "flex tab-title">{{tab.title}}</span>
+              </div>
+              <paper-icon-button icon = "close" class = "closeTab" on-click = "_removeTab"></paper-icon-button>
+            </paper-tab>
           </template>
         </paper-tabs>
         <paper-icon-button class = "toolbar-icon" icon = "add" id = "addTab" on-click = "_addTab"></paper-icon-button>
 
         <paper-menu-button class = "toolbar-icon" id = "menuBtn" horizontal-align="right">
           <paper-icon-button icon="menu" class="dropdown-trigger" id = "menuBtn"></paper-icon-button>
-          <paper-menu class="dropdown-content">
+          <paper-menu class="dropdown-content" id = "settingsMenu">
             <template is="dom-repeat" items="[[test]]" as="test">
               <paper-item>[[test]]</paper-item>
             </template>
@@ -145,15 +148,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Main Content -->
 
-      <webview id="webview" src="[[url]]" allowtransparency = "on"></webview>
+      <!-- <webview id="webview" src="[[url]]" allowtransparency = "on"></webview> -->
 
-      <!-- <iron-pages selected = "{{selected}}">
-        <template is = "dom-repeat" items = "tabs" as = "tab">
-          <iron-page>
-            <webview id="webview" src="[[tab.url]]" allowtransparency = "on"></webview>
-          </iron-page>
+      <iron-pages selected = "{{selected}}" id = "ironPages">
+        <template is = "dom-repeat" items = "{{tabs}}" as = "tab" id = "pagesRepeat">
+          <!-- <webview-inner src = "[[tab.url]]"></webview-inner> -->
+          <webview class="webview" id = "{{tab.pageId}}" src="{{tab.url}}" allowtransparency = "on"></webview>
         </template>
-      </iron-pages> -->
+      </iron-pages>
     </paper-header-panel>
 
   </template>
@@ -176,7 +178,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: function(){
             return [{
               title: "Google",
-              url: "http://www.google.com"
+              url: "http://www.google.com",
+              tabId: "tab0",
+              pageId: "page0"
             }];
           }
         },
@@ -185,35 +189,61 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: function(){
             return ['item 1', 'item 2', 'item 3']
           }
+        },
+        pageSelector: {
+          type: String,
+          value: '#tab0'
+        },
+        pageSelector: {
+          type: String,
+          value: 'page0'
+        },
+        selected: {
+          type: String,
+          observer: '_changedTab'
         }
       },
       ready: function(){
-        this.$.webview.addEventListener('did-finish-load', this._listenForLoad.bind(this), false);
+        this.selected = '0';
+        this.$.ironPages.select(0);
       },
       home: function(){
         this.url = 'http://www.google.com'
       },
       back: function(){
-        this.$.webview.goBack();
+        if (this.$$(this.pageSelector).canGoBack()){
+          this.$$(this.pageSelector).goBack();
+        }
       },
       forward: function(){
-        this.$.webview.goForward();
+        if (this.$$(this.pageSelector).canGoForward()){
+          this.$$(this.pageSelector).goForward();
+        }
       },
       reload: function(){
-        this.$.webview.reload();
+        this.$$(this.pageSelector).reload();
       },
+      openConsole: function(){
+        if (!this.$$(this.pageSelector).isDevToolsOpened()){
+          this.$$(this.pageSelector).openDevTools();
+        }else{
+          this.$$(this.pageSelector).closeDevTools();
+        }
 
-      _listenForLoad: function(){
-        // add check for if the input url box is not focused
-        this.url = this.$.webview.getUrl();
       },
       _urlChanged: function(){
-        // this.$.webview.url = this.url;
+        if (this.pageSelector){
+          this.$$(this.pageSelector).src = this.url;
+        }
       },
       _addTab: function(){
         this.push('tabs', {
-          title: 'Google',
-          url: 'http://www.github.com'
+          //title: 'New Tab',
+          //url: __dirname + '/new-tab.html',
+          title: 'Github',
+          url: 'http://www.github.com/',
+          tabId: 'tab' + this.tabs.length,
+          pageId: 'page' + this.tabs.length
         })
         // Add webview element
       },
@@ -226,10 +256,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.close();
         }
         if (model.index-1 >= 0){
-          this.$.tabsBar.selected = model.index-1;
+          this.selected = model.index-1;
         }
-        //TODO: Also delete the webview instance!!!!
-      }
+      },
+      _changedTab: function(){
+        this.pageSelector = '#page' + this.selected;
+        this.tabSelector = '#tab' + this.selected;
+        if (this.$$(this.pageSelector)){
+            this.$$(this.pageSelector).addEventListener('did-finish-load', this._listenForLoad.bind(this), false);
+        }
+      },
+      _listenForLoad: function(){
+        // add check for if the input url box is not focused
+        this.url = this.$$(this.pageSelector).getUrl();
+        // set title of tab
+        this.$.tabsRepeat.modelForElement(this.$$(this.tabSelector)).set('item.title', this.$$(this.tabSelector).getTitle());
+        //this.tabs[this.selected].title = this.$$(this.pageSelector).getTitle();
+        console.log(this.$.tabRepeat.modelForElement(this.$$(this.tabSelector)));
+        // this.$.tabsRepeat.render();
+      },
     });
   })();
   </script>
