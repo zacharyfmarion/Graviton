@@ -18,7 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 100%;
       width: 100%;
     }
-    paper-input{
+    #addressBar{
       --paper-input-container-input-color: #fff;
       /*--paper-input-container-color: var(--accent-color);*/
       padding-bottom: 35px;
@@ -120,7 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-icon-button class = "toolbar-icon" icon="arrow-forward" on-click = "forward"></paper-icon-button>
         <paper-icon-button class = "toolbar-icon" icon="refresh" on-click = "reload"></paper-icon-button>
         <!-- Address bar -->
-        <paper-input class="flex" value = "{{url::input}}"></paper-input>
+        <paper-input class="flex" id = "addressBar" value = "[[url]]"></paper-input>
         <!-- Tabs -->
         <paper-tabs selected="{{selected}}" id = "tabsBar" noink>
         <!-- <paper-tabs selected="0" id = "tabsBar" noink> -->
@@ -206,6 +206,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ready: function(){
         this.selected = '0';
         this.$.ironPages.select(0);
+        // listen for change to addressBar
+        var scope = this;
+        this.$.addressBar.addEventListener('keydown', function(e){
+          if (e.keyCode == 13) {
+            console.log('Enter pressed');
+            scope.url = scope.$.addressBar.value;
+            return false;
+          }
+        }, false);
       },
       home: function(){
         this.url = 'http://www.google.com'
@@ -274,7 +283,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //this.tabs[this.selected].title = this.$$(this.pageSelector).getTitle();
         console.log(this.$.tabRepeat.modelForElement(this.$$(this.tabSelector)));
         // this.$.tabsRepeat.render();
-      },
+      }//,
+      // _addressChanged: function(e){
+      //   if (e.keyCode == 13) {
+      //     this.url = this.$.addressBar.value;
+      //     return false;
+      //   }
+      // }
     });
   })();
   </script>
