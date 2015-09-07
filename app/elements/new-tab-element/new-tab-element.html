@@ -17,22 +17,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .links{
-      max-width: 600px;
-      margin: auto;
+      margin: 20px auto;
     }
+
+    paper-card{
+      margin: 10px;
+      min-width: 100px;
+      /*--paper-card-header-text: {
+        color: var(--accent-color);
+      }*/
+    }
+
+    .wrapper{
+      height: 100%;
+    }
+
+    paper-toolbar{
+      background: var(--accent-color);
+    }
+
+    .actualLink{
+      color: var(--accent-color);
+    }
+
   </style>
   <template>
     <paper-header-panel>
-      <div class="layout horizontal wrap links">
-        <template is = "dom-repeat" items = "links" as = "link">
-          <a href="[[link.link]]">
-            <paper-card heading="[[link.name]]" image="http://placehold.it/350x150">
-              <div class="card-content">
-                [[link.link]]
-              </div>
-            </paper-card>
-          </a>
-        </template>
+      <paper-toolbar>
+        <div class="title">New Tab</div>
+      </paper-toolbar>
+      <div class="layout vertical wrapper">
+        <div class="layout horizontal center links">
+          <template is = "dom-repeat" items = "{{links}}" as = "link">
+            <a href="{{link.link}}">
+              <paper-card heading="" class = "flex" image="{{link.image}}">
+                <div class="card-content">
+                  <span class = "actualLink">{{link.link}}</span>
+                </div>
+              </paper-card>
+            </a>
+          </template>
+        </div>
       </div>
     </paper-header-panel>
   </template>
@@ -48,15 +73,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             return [
               {
                 name: 'Google',
-                link: 'http://www.google.com'
+                link: 'http://www.google.com',
+                image: '../assets/img/google.png'
               },
               {
                 name: 'Github',
-                link: 'http://www.github.com'
+                link: 'http://www.github.com',
+                image: '../assets/img/github.png'
               },
               {
                 name: 'Polymer',
-                link: 'https://www.polymer-project.org/1.0/'
+                link: 'https://www.polymer-project.org/1.0/',
+                image: '../assets/img/polymer.png'
               }
             ]
           }

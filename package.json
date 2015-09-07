@@ -33,9 +33,15 @@
   },
   "scripts": {
     "test": "gulp test:local",
-    "start": "node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron ."
+    "start": "node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron .",
+    "build:osx": "electron-packager ./ \"Graviton\" --out=dist/osx --platform=darwin --arch=x64 --version=0.31.2 --icon=assets/osx/Graviton.icns",
+    "pack:osx": "electron-builder \"dist/osx/Graviton.app\" --platform=osx --out=\"dist/osx\" --config=packager.json"
   },
   "engines": {
     "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "electron-builder": "^2.0.0",
+    "electron-packager": "^5.0.2"
   }
 }

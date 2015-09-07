@@ -57,9 +57,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     paper-tab{
-      min-width: 40px;
-      max-width: 60px;
+      min-width: 50px;
+      max-width: 80px;
       --paper-tab-ink: var(--accent-color);
+      padding-left: 3px;
+      padding-right: 3px;
     }
 
     paper-tabs{
@@ -67,6 +69,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin-top: 0;
       padding-bottom: 20px;
       --paper-tabs-selection-bar-color: var(--accent-color);
+      text-align: left;
+      overflow: scroll;
     }
 
     #menuBtn{
@@ -78,14 +82,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --iron-icon-width: 15px;
       padding: 3px;
       z-index: 10000;
+      margin-right: 0;
     }
 
     paper-item{
       cursor: pointer;
     }
 
-    tab-title{
-      overflow: ellipsis;
+    .tab-title{
+      display: inline-block;
+      max-width: 40px;
+      margin-top: 5px;
+      margin-right: 0;
+      text-overflow: hidden;
+      /*text-overflow: ellipsis;*/
+      overflow: hidden;
+      font-size: 13px;
     }
 
     iron-pages{
@@ -125,11 +137,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tabs selected="{{selected}}" id = "tabsBar" noink>
         <!-- <paper-tabs selected="0" id = "tabsBar" noink> -->
           <template is = "dom-repeat" items = "{{tabs}}" as = "tab" id = "tabsRepeat">
-            <paper-tab id = "tab.tabId">
+            <paper-tab id = "{{tab.tabId}}">
               <div class="layout horizontal">
                 <span class = "flex tab-title">{{tab.title}}</span>
+                <paper-icon-button icon = "close" class = "closeTab" on-click = "_removeTab"></paper-icon-button>
               </div>
-              <paper-icon-button icon = "close" class = "closeTab" on-click = "_removeTab"></paper-icon-button>
             </paper-tab>
           </template>
         </paper-tabs>
@@ -182,7 +194,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               tabId: "tab0",
               pageId: "page0"
             }];
-          }
+          },
+          notify: true
         },
         test: {
           type: Array,
@@ -196,11 +209,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         pageSelector: {
           type: String,
-          value: 'page0'
+          value: '#page0'
         },
         selected: {
           type: String,
           observer: '_changedTab'
+        },
+        tabModel: {
+          type: Object
         }
       },
       ready: function(){
@@ -210,11 +226,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var scope = this;
         this.$.addressBar.addEventListener('keydown', function(e){
           if (e.keyCode == 13) {
-            console.log('Enter pressed');
-            scope.url = scope.$.addressBar.value;
+            var value = scope.$.addressBar.value;
+            scope._validateAdressBar(value);
             return false;
           }
         }, false);
+      },
+      attached: function(){
+        this.$$(this.pageSelector).addEventListener('did-finish-load', this._listenForLoad.bind(this), false);
       },
       home: function(){
         this.url = 'http://www.google.com'
@@ -231,6 +250,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       reload: function(){
         this.$$(this.pageSelector).reload();
+        this._listenForLoad();
       },
       openConsole: function(){
         if (!this.$$(this.pageSelector).isDevToolsOpened()){
@@ -241,16 +261,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       },
       _urlChanged: function(){
-        if (this.pageSelector){
+        if (this.pageSelector && (this.url !== this.$$(this.pageSelector).src)){
           this.$$(this.pageSelector).src = this.url;
         }
       },
       _addTab: function(){
         this.push('tabs', {
-          //title: 'New Tab',
-          //url: __dirname + '/new-tab.html',
-          title: 'Github',
-          url: 'http://www.github.com/',
+          title: 'New Tab',
+          url: __dirname + '/new-tab.html',
+          //title: 'GitHub',
+          //url: 'http://www.github.com/',
           tabId: 'tab' + this.tabs.length,
           pageId: 'page' + this.tabs.length
         })
@@ -279,17 +299,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // add check for if the input url box is not focused
         this.url = this.$$(this.pageSelector).getUrl();
         // set title of tab
-        this.$.tabsRepeat.modelForElement(this.$$(this.tabSelector)).set('item.title', this.$$(this.tabSelector).getTitle());
-        //this.tabs[this.selected].title = this.$$(this.pageSelector).getTitle();
-        console.log(this.$.tabRepeat.modelForElement(this.$$(this.tabSelector)));
-        // this.$.tabsRepeat.render();
-      }//,
-      // _addressChanged: function(e){
-      //   if (e.keyCode == 13) {
-      //     this.url = this.$.addressBar.value;
-      //     return false;
-      //   }
-      // }
+        this.tabModel = this.$.tabsRepeat.modelForElement(this.$$(this.tabSelector));
+        this.set(['tabs', this.selected, 'title'], this.$$(this.pageSelector).getTitle());
+        console.log(this.tabModel);
+      },
+      _validateAdressBar: function(value){
+        var http = 'http://', https = 'https//';
+        if (value.search(http) === -1 && value.search(https) === -1){
+          var res = http.concat(value);
+          this.url = res;
+        }else{
+          this.url = value;
+        }
+      }
     });
   })();
   </script>
