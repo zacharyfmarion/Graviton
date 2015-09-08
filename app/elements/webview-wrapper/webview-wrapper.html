@@ -295,8 +295,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _changedTab: function(){
         this.pageSelector = '#' + this.tabs[this.selected].pageId;
         this.tabSelector = '#' + this.tabs[this.selected].tabId;
-        console.log(this.pageSelector);
         if (this.$$(this.pageSelector)){
+            this.url = this.$$(this.pageSelector).getUrl();
             this.$$(this.pageSelector).addEventListener('did-finish-load', this._listenForLoad.bind(this), false);
         }
       },

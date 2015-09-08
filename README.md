@@ -2,7 +2,7 @@
 
 ![](https://raw.githubusercontent.com/zacharyfmarion/Material-Browser/master/Image1.png?raw=true "Material Browser")
 
-This is a super-alpha-like-really-not-ready-for-use browser for Mac made using [Electron](http://electron.atom.io/) and [Polymer](https://www.polymer-project.org/), and is still under heavy development.
+This is a minimalist (the developer's chosen synonym for lacking-in-functionality) web browser for Mac made using [Electron](http://electron.atom.io/) and [Polymer](https://www.polymer-project.org/), and is still under heavy development.
 
 ## Build instructions
 
