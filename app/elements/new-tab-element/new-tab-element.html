@@ -18,11 +18,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .links{
       margin: 20px auto;
+      max-width: 1000px;
     }
 
     paper-card{
       margin: 10px;
-      min-width: 100px;
+      min-width: 200px;
+      max-width: 300px;
       /*--paper-card-header-text: {
         color: var(--accent-color);
       }*/
@@ -47,10 +49,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="title">New Tab</div>
       </paper-toolbar>
       <div class="layout vertical wrapper">
-        <div class="layout horizontal center links">
+        <div class="layout horizontal center wrap links">
           <template is = "dom-repeat" items = "{{links}}" as = "link">
             <a href="{{link.link}}">
               <paper-card heading="" class = "flex" image="{{link.image}}">
+                <paper-ripple></paper-ripple>
                 <div class="card-content">
                   <span class = "actualLink">{{link.link}}</span>
                 </div>
@@ -85,6 +88,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 name: 'Polymer',
                 link: 'https://www.polymer-project.org/1.0/',
                 image: '../assets/img/polymer.png'
+              },
+              {
+                name: 'Inbox',
+                link: 'https://inbox.google.com/',
+                image: '../assets/img/inbox.png'
               }
             ]
           }

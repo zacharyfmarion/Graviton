@@ -40,7 +40,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     }
 
-    .menubar{
+    #menubar{
       -webkit-app-region: drag;
       -webkit-user-select: none;
       border-radius: 0;
@@ -57,7 +57,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     paper-tab{
-      min-width: 50px;
+      min-width: 60px;
+      width: 65px;
       max-width: 80px;
       --paper-tab-ink: var(--accent-color);
       padding-left: 3px;
@@ -87,6 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     paper-item{
       cursor: pointer;
+      --paper-item-min-height: 35px;
     }
 
     .tab-title{
@@ -116,7 +118,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template class = "flex">
 
     <paper-header-panel main class = "flex">
-      <div class = "layout horizontal menubar" style = "height: 20px; width = 100%;">
+      <div class = "layout horizontal" id = "menubar" style = "height: 20px; width = 100%;">
         <paper-icon-button class="small-icon" icon="close" id = "close" on-click = "close"></paper-icon-button>
         <paper-icon-button class="small-icon" icon="remove" id = "minimize" on-click = "minimize"></paper-icon-button>
         <paper-icon-button class="small-icon" icon="fullscreen" id = "fullscreen" on-click = "fullscreen"></paper-icon-button>
@@ -145,7 +147,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </paper-tab>
           </template>
         </paper-tabs>
-        <paper-icon-button class = "toolbar-icon" icon = "add" id = "addTab" on-click = "_addTab"></paper-icon-button>
+        <paper-icon-button class = "toolbar-icon" icon = "add" id = "addTab" on-click = "newTab"></paper-icon-button>
 
         <paper-menu-button class = "toolbar-icon" id = "menuBtn" horizontal-align="right">
           <paper-icon-button icon="menu" class="dropdown-trigger" id = "menuBtn"></paper-icon-button>
@@ -165,7 +167,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <iron-pages selected = "{{selected}}" id = "ironPages">
         <template is = "dom-repeat" items = "{{tabs}}" as = "tab" id = "pagesRepeat">
           <!-- <webview-inner src = "[[tab.url]]"></webview-inner> -->
-          <webview class="webview" id = "{{tab.pageId}}" src="{{tab.url}}" allowtransparency = "on"></webview>
+          <webview class="webview" id = "{{tab.pageId}}" src="{{tab.url}}" allowtransparency = "on" autosize = "on"></webview>
         </template>
       </iron-pages>
     </paper-header-panel>
@@ -188,12 +190,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tabs: {
           type: Array,
           value: function(){
-            return [{
-              title: "Google",
-              url: "http://www.google.com",
-              tabId: "tab0",
-              pageId: "page0"
-            }];
+            return [];
           },
           notify: true
         },
@@ -204,12 +201,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         },
         pageSelector: {
-          type: String,
-          value: '#tab0'
+          type: String
         },
         pageSelector: {
-          type: String,
-          value: '#page0'
+          type: String
         },
         selected: {
           type: String,
@@ -220,6 +215,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
       ready: function(){
+        // Push a tab to the tabs array
+        this._addTab('http://www.google.com', 'Google');
         this.selected = '0';
         this.$.ironPages.select(0);
         // listen for change to addressBar
@@ -231,9 +228,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             return false;
           }
         }, false);
-      },
-      attached: function(){
-        this.$$(this.pageSelector).addEventListener('did-finish-load', this._listenForLoad.bind(this), false);
       },
       home: function(){
         this.url = 'http://www.google.com'
@@ -260,21 +254,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
       },
+      newTab(){
+        this._addTab(__dirname + '/new-tab.html', 'New Tab');
+      },
       _urlChanged: function(){
         if (this.pageSelector && (this.url !== this.$$(this.pageSelector).src)){
           this.$$(this.pageSelector).src = this.url;
         }
       },
-      _addTab: function(){
+      _addTab: function(url, title){
+        var uid = this._generateUID();
         this.push('tabs', {
-          title: 'New Tab',
-          url: __dirname + '/new-tab.html',
-          //title: 'GitHub',
-          //url: 'http://www.github.com/',
-          tabId: 'tab' + this.tabs.length,
-          pageId: 'page' + this.tabs.length
-        })
-        // Add webview element
+          title: title,
+          url: url,
+          tabId: 'tab' + uid,
+          pageId: 'page' + uid
+        });
+        var currSelected = this.tabs.length - 1;
+        this.selected = currSelected.toString();
+        // If entering fullscreen hide the UI
+        // this.$$(this.tabs[this.selected].pageId).addEventListener('enter-html-full-screen', this._hideUi.bind(this), false);
+        // this.$$(this.tabs[this.selected].pageId).addEventListener('leave-html-full-screen', this._showUi.bind(this), false);
+        // // Open link in new window
+        // this.$$(this.tabs[this.selected].pageId).addEventListener('new-window', function(e){
+        //   this._addTab(e.url, 'New Tab');
+        // }, false);
       },
       _removeTab: function(e){
         var model = e.model;
@@ -289,8 +293,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
       _changedTab: function(){
-        this.pageSelector = '#page' + this.selected;
-        this.tabSelector = '#tab' + this.selected;
+        this.pageSelector = '#' + this.tabs[this.selected].pageId;
+        this.tabSelector = '#' + this.tabs[this.selected].tabId;
+        console.log(this.pageSelector);
         if (this.$$(this.pageSelector)){
             this.$$(this.pageSelector).addEventListener('did-finish-load', this._listenForLoad.bind(this), false);
         }
@@ -299,18 +304,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // add check for if the input url box is not focused
         this.url = this.$$(this.pageSelector).getUrl();
         // set title of tab
-        this.tabModel = this.$.tabsRepeat.modelForElement(this.$$(this.tabSelector));
+        this.tabModel = this.$.tabsRepeat.modelForElement(this.$$(this.pageSelector));
         this.set(['tabs', this.selected, 'title'], this.$$(this.pageSelector).getTitle());
         console.log(this.tabModel);
       },
       _validateAdressBar: function(value){
-        var http = 'http://', https = 'https//';
+        var http = 'http://', https = 'https://';
         if (value.search(http) === -1 && value.search(https) === -1){
           var res = http.concat(value);
           this.url = res;
         }else{
           this.url = value;
         }
+      },
+      _hideUi: function(){
+        this.$.mainToolbar.style.display = 'none';
+        this.$.menubar.style.display = 'none';
+      },
+      _showUi: function(){
+        this.$.mainToolbar.style.display = 'block';
+        this.$.menubar.style.display = 'block';
+      },
+      // from http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+      _generateUID: function(){
+          function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+              .toString(16)
+              .substring(1);
+          }
+          return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
       }
     });
   })();
