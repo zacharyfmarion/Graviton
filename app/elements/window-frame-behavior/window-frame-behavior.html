@@ -38,7 +38,8 @@ BrowserBehaviors.WindowFrameBehvior = {
      this.browserWindow = this.remote.require('browser-window');
    },
    close: function(){
-     this.app.quit();
+     var focusedWindow = this.browserWindow.getFocusedWindow();
+     focusedWindow.close();
    },
    minimize: function(){
      var focusedWindow = this.browserWindow.getFocusedWindow();
