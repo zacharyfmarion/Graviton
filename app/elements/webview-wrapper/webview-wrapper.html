@@ -286,9 +286,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // this.$$(this.tabs[this.selected].pageId).addEventListener('enter-html-full-screen', this._hideUi.bind(this), false);
         // this.$$(this.tabs[this.selected].pageId).addEventListener('leave-html-full-screen', this._showUi.bind(this), false);
         // // Open link in new window
-        // this.$$(this.tabs[this.selected].pageId).addEventListener('new-window', function(e){
-        //   this._addTab(e.url, 'New Tab');
-        // }, false);
       },
       _removeTab: function(e){
         var model = e.model;
@@ -309,6 +306,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.$$(this.pageSelector)){
             this.url = this.$$(this.pageSelector).getUrl();
             this.$$(this.pageSelector).addEventListener('did-finish-load', this._listenForLoad.bind(this), false);
+            this.$$(this.pageSelector).addEventListener('new-window', function(e){
+              this._addTab(e.url, 'New Tab');
+              console.log('New tab opened from link');
+            }, false);
         }
       },
       _listenForLoad: function(){
