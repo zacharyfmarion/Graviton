@@ -1,6 +1,6 @@
-# Material Browser
+# Graviton
 
-![](https://raw.githubusercontent.com/zacharyfmarion/Material-Browser/master/Image1.png?raw=true "Material Browser")
+![](https://raw.githubusercontent.com/zacharyfmarion/Material-Browser/master/Image1.png?raw=true "Graviton")
 
 This is a minimalist (the developer's chosen synonym for lacking-in-functionality) web browser for Mac made using [Electron](http://electron.atom.io/) and [Polymer](https://www.polymer-project.org/), and is still under heavy development.
 
