@@ -302,11 +302,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       _listenForLoad: function(){
         // add check for if the input url box is not focused
-        this.url = this.$$(this.pageSelector).getUrl();
-        // set title of tab
-        this.tabModel = this.$.tabsRepeat.modelForElement(this.$$(this.pageSelector));
-        this.set(['tabs', this.selected, 'title'], this.$$(this.pageSelector).getTitle());
-        console.log(this.tabModel);
+        if (this.$$(this.pageSelector)){
+          this.url = this.$$(this.pageSelector).getUrl();
+          // set title of tab
+          this.tabModel = this.$.tabsRepeat.modelForElement(this.$$(this.pageSelector));
+          this.set(['tabs', this.selected, 'title'], this.$$(this.pageSelector).getTitle());
+          //console.log(this.tabModel);
+        }
       },
       _validateAdressBar: function(value){
         var http = 'http://', https = 'https://';
