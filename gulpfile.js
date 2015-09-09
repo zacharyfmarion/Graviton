@@ -21,6 +21,7 @@ var path = require('path');
 var fs = require('fs');
 var glob = require('glob');
 var historyApiFallback = require('connect-history-api-fallback');
+var shell = require('gulp-shell');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -232,6 +233,10 @@ gulp.task('serve:dist', ['default'], function () {
   });
 });
 
+gulp.task('electron', shell.task([
+  'npm start', 'echo hello'
+]));
+
 // Build Production Files, the Default Task
 gulp.task('default', ['clean'], function (cb) {
   runSequence(
@@ -240,6 +245,9 @@ gulp.task('default', ['clean'], function (cb) {
     ['jshint', 'images', 'fonts', 'html'],
     'vulcanize',
     cb);
+  runSequence(
+    ['electron']
+  );
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });
 

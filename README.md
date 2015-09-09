@@ -2,7 +2,7 @@
 
 ![](https://raw.githubusercontent.com/zacharyfmarion/Material-Browser/master/Image1.png?raw=true "Graviton")
 
-This is a minimalist (the developer's chosen synonym for lacking-in-functionality) web browser for Mac made using [Electron](http://electron.atom.io/) and [Polymer](https://www.polymer-project.org/), and is still under heavy development.
+Graviton is a minimalist web browser for Mac made using [Electron](http://electron.atom.io/) and [Polymer](https://www.polymer-project.org/), and is still under heavy development.
 
 ## Build instructions
 
@@ -14,13 +14,9 @@ Install Dependecies:
 
 `npm install && bower install`
 
-Run gulp to build a distribution version
+Run gulp to build a distribution version and start electron
 
 `gulp`
-
-Open the application using Electron:
-
-`npm start`
 
 Once a stable build is reached I will package it using Electron and provide a download link.
 
