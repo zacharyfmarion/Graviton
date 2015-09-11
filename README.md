@@ -14,9 +14,13 @@ Install Dependecies:
 
 `npm install && bower install`
 
-Run gulp to build a distribution version and start electron
+Run gulp to build a distribution version
 
 `gulp`
+
+To start the app, run
+
+`npm start`
 
 Once a stable build is reached I will package it using Electron and provide a download link.
 

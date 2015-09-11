@@ -17,34 +17,41 @@ var BrowserBehaviors = BrowserBehaviors || {};
   */
 BrowserBehaviors.WindowFrameBehvior = {
   properties: {
+    /* * Remote object, necessary for getting objects from main process */
     remote: {
       type: Object,
       value: function(){
         return require('remote');
       }
     },
-    app: {
-      type: Object
-    },
+    /* * browserWindow object, required for minimizing, maximizing, etc */
     browserWindow: {
       type: Object
     }
   },
   /**
-   *
+   *  On ready require the browserWindow object using this.remote
    */
    ready: function(){
-     this.app = this.remote.require('app');
      this.browserWindow = this.remote.require('browser-window');
    },
+   /**
+   *  Close the current active window
+   */
    close: function(){
      var focusedWindow = this.browserWindow.getFocusedWindow();
      focusedWindow.close();
    },
+   /**
+   *  Minimize the current active window
+   */
    minimize: function(){
      var focusedWindow = this.browserWindow.getFocusedWindow();
      focusedWindow.minimize();
    },
+   /**
+   *  Set the current active window to fullscreen
+   */
    fullscreen: function(){
      var focusedWindow = this.browserWindow.getFocusedWindow();
      focusedWindow.setFullScreen(!focusedWindow.isFullScreen());

@@ -183,12 +183,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       behaviors: [BrowserBehaviors.WindowFrameBehvior],
 
       properties: {
+        /* *The url that is displayed in the address bar */
         url: {
           type: String,
           value: 'http://www.google.com',
           notify: true,
           observer: '_urlChanged'
         },
+        /* *Array of tabs corresponding to the current webview elements in use */
         tabs: {
           type: Array,
           value: function(){
@@ -196,26 +198,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           notify: true
         },
+        /* *Options for the menu dropdown in upper right of toolbar */
         menuOptions: {
           type: Array,
           value: function(){
             return [{label: 'New Tab', funct: 'newTab'}, {label: 'New Window', funct: 'newWindow'}, {label: 'Print', funct: 'print'}]
           }
         },
+        /* *Id of the current active webview element, updated on tab change */
         pageSelector: {
           type: String
         },
-        pageSelector: {
+        /* *Id of the tab corresponding to the current active webview element, updated on tab change */
+        tabSelector: {
           type: String
         },
+        /* *Index of the selected tab, updated on tab change or mutation of tab array */
         selected: {
           type: String,
           observer: '_changedTab'
         },
+        /* *Model for the tab item currently active */
         tabModel: {
           type: Object
         }
       },
+      /*
+       * Basic setup done here
+      */
       ready: function(){
         // Push a tab to the tabs array
         this._addTab('http://www.google.com', 'Google');
@@ -231,23 +241,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         }, false);
       },
+      /*
+       * Changes the url to google, which in tern updates the url of the webview tag
+       * currently active (accessed with this.$$(this.pageSelector))
+      */
       home: function(){
         this.url = 'http://www.google.com'
       },
+      /*
+       * If the current active webview element can go back, then go back one page in history
+      */
       back: function(){
         if (this.$$(this.pageSelector).canGoBack()){
           this.$$(this.pageSelector).goBack();
         }
       },
+      /*
+       * If the current active webview element can go forward, then go forward one page in history
+      */
       forward: function(){
         if (this.$$(this.pageSelector).canGoForward()){
           this.$$(this.pageSelector).goForward();
         }
       },
+      /*
+       * Reload the current active webview element
+      */
       reload: function(){
         this.$$(this.pageSelector).reload();
         this._listenForLoad();
       },
+      /*
+       * Open the dev console FOR THE WEBVIEW ELEMENT, not for Electron
+      */
       openConsole: function(){
         if (!this.$$(this.pageSelector).isDevToolsOpened()){
           this.$$(this.pageSelector).openDevTools();
@@ -256,22 +282,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
       },
+      /*
+       * Add a new tab and direct the webview src to new-tab.html
+      */
       newTab: function(){
         this._addTab(__dirname + '/new-tab.html', 'New Tab');
       },
+      /*
+       * Print the current webpage
+       * TODO: Also implement printToPdf
+      */
       print: function(){
         this.$$(this.pageSelector).print();
       },
+      /*
+       * Open a new instance of the browser
+      */
       newWindow: function(){
         var browserWindow = this.remote.require('browser-window');
         var newWindow = new browserWindow({width: 1200, height: 800, 'min-width': 800, 'min-height': 500, frame: false});
         newWindow.loadUrl('file://' + __dirname + '/index.html');
       },
+      /*
+       * On a change in the url, set the current webview tag to this url, if the two
+       * are not already equal
+      */
       _urlChanged: function(){
         if (this.pageSelector && (this.url !== this.$$(this.pageSelector).src)){
           this.$$(this.pageSelector).src = this.url;
         }
       },
+      /*
+       * Generate a unique id for the new tag and push this new element to this.tabs
+       * Also selects the new tab (deal with event listeners here too)
+      */
       _addTab: function(url, title){
         var uid = this._generateUID();
         this.push('tabs', {
@@ -281,12 +325,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           pageId: 'page' + uid
         });
         var currSelected = this.tabs.length - 1;
-        this.selected = currSelected.toString();
+        this.$.ironPages.selected = currSelected.toString();
         // If entering fullscreen hide the UI
         // this.$$(this.tabs[this.selected].pageId).addEventListener('enter-html-full-screen', this._hideUi.bind(this), false);
         // this.$$(this.tabs[this.selected].pageId).addEventListener('leave-html-full-screen', this._showUi.bind(this), false);
         // // Open link in new window
       },
+      /*
+       * Remove the tab at the index which the close button was pressed, and select the tab one less than it in the index
+       * if this tab exists
+      */
       _removeTab: function(e){
         var model = e.model;
         // remove this tab from the array
@@ -300,8 +348,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.selected = newSelected.toString();
         }
       },
+      /*
+       * Called when this.selected changes, updates this.pageSelector and this.tabSelector and listens for 
+       * relevant events
+      */
       _changedTab: function(){
         this.pageSelector = '#' + this.tabs[this.selected].pageId;
+        console.log('Changed tab');
         this.tabSelector = '#' + this.tabs[this.selected].tabId;
         if (this.$$(this.pageSelector)){
             this.url = this.$$(this.pageSelector).getUrl();
@@ -312,6 +365,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }, false);
         }
       },
+      /*
+       * On page load for the current active webview element, update the page url and tab title
+      */
       _listenForLoad: function(){
         // add check for if the input url box is not focused
         if (this.$$(this.pageSelector)){
@@ -322,6 +378,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           //console.log(this.tabModel);
         }
       },
+      /*
+       * Make using the address bar better (TODO: Add stuff here)
+      */
       _validateAdressBar: function(value){
         var http = 'http://', https = 'https://';
         if (value.search(http) === -1 && value.search(https) === -1){
@@ -331,15 +390,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.url = value;
         }
       },
+      /*
+       * Hides the UI on enter-html-full-screen
+      */
       _hideUi: function(){
         this.$.mainToolbar.style.display = 'none';
         this.$.menubar.style.display = 'none';
       },
+      /*
+       * Shows the UI on exit-html-full-screen
+      */
       _showUi: function(){
         this.$.mainToolbar.style.display = 'block';
         this.$.menubar.style.display = 'block';
       },
-      // from http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+      /*
+       * Generate a random UID for each new tab created
+       * from http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+      */
       _generateUID: function(){
           function s4() {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -349,6 +417,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
             s4() + '-' + s4() + s4() + s4();
       },
+      /*
+       * Call the appropriate function on-click of a certain paper-item in the settings menu
+       * TODO: Make this separate / less ugly
+      */
       _menuItemClicked: function(e){
         var model = e.model;
         console.log(model.option.funct);

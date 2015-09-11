@@ -233,10 +233,6 @@ gulp.task('serve:dist', ['default'], function () {
   });
 });
 
-gulp.task('electron', shell.task([
-  'npm start', 'echo hello'
-]));
-
 // Build Production Files, the Default Task
 gulp.task('default', ['clean'], function (cb) {
   runSequence(
@@ -245,9 +241,6 @@ gulp.task('default', ['clean'], function (cb) {
     ['jshint', 'images', 'fonts', 'html'],
     'vulcanize',
     cb);
-  runSequence(
-    ['electron']
-  );
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });
 

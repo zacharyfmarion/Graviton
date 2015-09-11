@@ -45,19 +45,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <paper-header-panel>
+      <!-- Toolbar for new tab...TODO: make more interesting!!! Also current color is a bit jarring -->
       <paper-toolbar>
         <div class="title">New Tab</div>
       </paper-toolbar>
+
       <div class="layout vertical wrapper">
         <div class="layout horizontal center wrap links">
           <template is = "dom-repeat" items = "{{links}}" as = "link">
             <a href="{{link.link}}">
+
+              <!-- Link card -->
               <paper-card heading="" class = "flex" image="{{link.image}}">
                 <paper-ripple></paper-ripple>
                 <div class="card-content">
                   <span class = "actualLink">{{link.link}}</span>
                 </div>
               </paper-card>
+
             </a>
           </template>
         </div>
@@ -70,6 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'new-tab-element',
 
       properties: {
+        /* * Links for the new tab page, for now statically generated */
         links: {
           type: Array,
           value: function(){
