@@ -65,11 +65,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body unresolved class="fullbleed layout vertical">
   <template is="dom-bind" id="app">
     <span id="browser-sync-binding"></span>
-
+    <!-- <app-menu></app-menu> -->
     <webview-wrapper></webview-wrapper>
 
-  </template>
+  <script>
+    var appmenu = require('./appmenu');
+    var menu = appmenu.generateMenu();
+    appmenu.setMenu(menu);
+  </script>
 
+  </template>
   <!-- build:js scripts/app.js -->
   <script src="scripts/app.js"></script>
   <!-- endbuild-->

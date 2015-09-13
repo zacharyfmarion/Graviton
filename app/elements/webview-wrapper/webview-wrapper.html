@@ -126,7 +126,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-icon-button class="small-icon" icon="remove" id = "minimize" on-click = "minimize"></paper-icon-button>
         <paper-icon-button class="small-icon" icon="fullscreen" id = "fullscreen" on-click = "fullscreen"></paper-icon-button>
         <span class="flex"></span>
-        <paper-icon-button class="small-icon" icon="bug-report" id = "openConsole" on-click = "openConsole"></paper-icon-button>
+        <paper-icon-button class="small-icon" icon="bug-report" id = "toggleConsole" on-click = "toggleConsole"></paper-icon-button>
       </div>
 
       <!-- Main Toolbar -->
@@ -136,10 +136,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-icon-button class = "toolbar-icon" icon="arrow-back" on-click = "back"></paper-icon-button>
         <paper-icon-button class = "toolbar-icon" icon="arrow-forward" on-click = "forward"></paper-icon-button>
         <paper-icon-button class = "toolbar-icon" icon="refresh" on-click = "reload"></paper-icon-button>
-        
+
         <!-- Address bar -->
         <paper-input class="flex" id = "addressBar" value = "[[url]]"></paper-input>
-        
+
         <!-- Tabs -->
         <paper-tabs selected="{{selected}}" id = "tabsBar" noink>
           <template is = "dom-repeat" items = "{{tabs}}" as = "tab" id = "tabsRepeat">
@@ -152,7 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </template>
         </paper-tabs>
         <paper-icon-button class = "toolbar-icon" icon = "add" id = "addTab" on-click = "newTab"></paper-icon-button>
-        
+
         <!-- Settings dropdown -->
 
         <paper-menu-button class = "toolbar-icon" id = "menuBtn" horizontal-align="right">
@@ -223,9 +223,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Object
         }
       },
-      /*
-       * Basic setup done here
-      */
+      /* * Basic setup done here */
       ready: function(){
         // Push a tab to the tabs array
         this._addTab('http://www.google.com', 'Google');
@@ -240,6 +238,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             return false;
           }
         }, false);
+
+        this.addEventListener('newTabRequested', function(){
+          scope.newTab();
+        }, false);
       },
       /*
        * Changes the url to google, which in tern updates the url of the webview tag
@@ -248,33 +250,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       home: function(){
         this.url = 'http://www.google.com'
       },
-      /*
-       * If the current active webview element can go back, then go back one page in history
-      */
+      /* * If the current active webview element can go back, then go back one page in history */
       back: function(){
         if (this.$$(this.pageSelector).canGoBack()){
           this.$$(this.pageSelector).goBack();
         }
       },
-      /*
-       * If the current active webview element can go forward, then go forward one page in history
-      */
+      /* * If the current active webview element can go forward, then go forward one page in history */
       forward: function(){
         if (this.$$(this.pageSelector).canGoForward()){
           this.$$(this.pageSelector).goForward();
         }
       },
-      /*
-       * Reload the current active webview element
-      */
+      /* * Reload the current active webview element */
       reload: function(){
         this.$$(this.pageSelector).reload();
         this._listenForLoad();
       },
-      /*
-       * Open the dev console FOR THE WEBVIEW ELEMENT, not for Electron
-      */
-      openConsole: function(){
+      stop: function(){
+        this.$$(this.pageSelector).stop();
+      },
+      /* * Open the dev console FOR THE WEBVIEW ELEMENT, not for Electron */
+      toggleConsole: function(){
         if (!this.$$(this.pageSelector).isDevToolsOpened()){
           this.$$(this.pageSelector).openDevTools();
         }else{
@@ -282,9 +279,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
       },
-      /*
-       * Add a new tab and direct the webview src to new-tab.html
-      */
+      /* * Add a new tab and direct the webview src to new-tab.html */
       newTab: function(){
         this._addTab(__dirname + '/new-tab.html', 'New Tab');
       },
@@ -292,16 +287,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        * Print the current webpage
        * TODO: Also implement printToPdf
       */
-      print: function(){
+      printWebPage: function(){
         this.$$(this.pageSelector).print();
       },
-      /*
-       * Open a new instance of the browser
-      */
+      printToPdf: function(){
+        this.$$(this.pageSelector).printToPDF();
+      },
+      /* * Open a new instance of the browser */
       newWindow: function(){
         var browserWindow = this.remote.require('browser-window');
         var newWindow = new browserWindow({width: 1200, height: 800, 'min-width': 800, 'min-height': 500, frame: false});
         newWindow.loadUrl('file://' + __dirname + '/index.html');
+      },
+      undo: function(){
+        this.$$(this.pageSelector).undo();
+      },
+      redo: function(){
+        this.$$(this.pageSelector).redo();
+      },
+      cut: function(){
+        this.$$(this.pageSelector).cut();
+      },
+      copy: function(){
+        this.$$(this.pageSelector).copy();
+      },
+      paste: function(){
+        this.$$(this.pageSelector).paste();
+      },
+      pasteAndMatchStyle: function(){
+        this.$$(this.pageSelector).pasteAndMatchStyle();
+      },
+      delete: function(){
+        this.$$(this.pageSelector).delete();
+      },
+      selectAll: function(){
+        this.$$(this.pageSelector).selectAll();
+      },
+      clearHistory: function(){
+        this.$$(this.pageSelector).clearHistory();
       },
       /*
        * On a change in the url, set the current webview tag to this url, if the two
@@ -349,7 +372,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
       /*
-       * Called when this.selected changes, updates this.pageSelector and this.tabSelector and listens for 
+       * Called when this.selected changes, updates this.pageSelector and this.tabSelector and listens for
        * relevant events
       */
       _changedTab: function(){
@@ -365,9 +388,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }, false);
         }
       },
-      /*
-       * On page load for the current active webview element, update the page url and tab title
-      */
+      /* * On page load for the current active webview element, update the page url and tab title */
       _listenForLoad: function(){
         // add check for if the input url box is not focused
         if (this.$$(this.pageSelector)){
@@ -378,9 +399,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           //console.log(this.tabModel);
         }
       },
-      /*
-       * Make using the address bar better (TODO: Add stuff here)
-      */
+      /* * Make using the address bar better (TODO: Add stuff here) */
       _validateAdressBar: function(value){
         var http = 'http://', https = 'https://';
         if (value.search(http) === -1 && value.search(https) === -1){
@@ -390,16 +409,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.url = value;
         }
       },
-      /*
-       * Hides the UI on enter-html-full-screen
-      */
+      /* * Hides the UI on enter-html-full-screen */
       _hideUi: function(){
         this.$.mainToolbar.style.display = 'none';
         this.$.menubar.style.display = 'none';
       },
-      /*
-       * Shows the UI on exit-html-full-screen
-      */
+      /* * Shows the UI on exit-html-full-screen */
       _showUi: function(){
         this.$.mainToolbar.style.display = 'block';
         this.$.menubar.style.display = 'block';
@@ -429,7 +444,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.newTab();
             break;
           case 'print':
-            this.print();
+            this.printWebPage();
             break;
           case 'newWindow':
             this.newWindow();
